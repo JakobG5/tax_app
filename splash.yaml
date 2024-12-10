@@ -1,0 +1,4 @@
+flutter_native_splash:
+  background_image: "assets/image/onboarding.png" 
+  android_12:
+    background_image: "assets/image/onboarding.png"
