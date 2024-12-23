@@ -1,0 +1,59 @@
+class DemozTex {
+  static const String easyWayToPay = 'Easy way to pay your tax ontime';
+  static const String itIsLongEstablished =
+      'It is long established fact that paying tax and other payments will be tedious process to keep up.';
+  static const String login = 'Login';
+  static const String signup = 'Sign up';
+  static const String welcomeTo = 'Welcome to';
+  static const String welcome = 'Welcome \u{1F44B}';
+  static const String demozPay = 'Demoz Payroll';
+  static const String helloThere = 'Hello there,Sign up to continue';
+  static const String emailA = 'Email Address';
+  static const String pass = 'Password';
+  static const String signUpla = 'Don\'t have an account? ';
+  static const String orContinue = 'Or continue with Social account';
+  static const String google = 'Goolgle';
+  static const String loginrequest = 'Did you already have an account? ';
+  static const String employeeComposition = 'Employee Composition';
+  static const String taxSummary = 'Tax Summary';
+  static const String date = 'Date';
+  static const String incomeTax = 'Income Tax';
+  static const String pensionTax = 'Pension Tax';
+  static const String upcoming = 'Upcoming';
+  static const String past = 'Past';
+  static const String noOfEmp = 'Number of Employees';
+  static const String home = 'Home';
+  static const String management = 'Management';
+  static const String addEmp = 'Add Employee';
+  static const String uploadCSV = 'Upload CSV';
+  static const String companyEmail = 'Company Email';
+  static const String companyProfile = 'Company Profile';
+  static const String phoneNumber = 'Phone Number';
+  static const String companyAddress = 'Company Address';
+  static const String companyName = 'Company Name';
+  static const String addEmployee = 'Add Employee';
+  static const String addNEmployee = 'Add New Employee';
+  static const String addET =
+      'Here you add your new employee and start calculating his/her tax and salary ';
+  static const String emName = 'Employee Name';
+  static const String comName = 'Company Name';
+  static const String comAdd = 'Address of the compony';
+  static const String comTN = 'Tin Number';
+  static const String comNofE = 'Number of employees';
+  static const String comBank = 'Company bank';
+  static const String comBAcc = 'Bank account number';
+  static const String submit = 'Submit for approval';
+  static const String register = 'Register your company to ';
+  static const String registerUr = 'Register your company to continue ';
+  static const String addN = 'Add New ';
+  static const String emp = 'Employee';
+  static const String hereyouaddyour =
+      'Here you add your new employee and start calculating his/her tax and salary';
+  static const String grossSalary = 'Gross salary';
+  static const String taxableEarning = 'Taxable earnings';
+  static const String startingDate = 'Starting date of salary';
+  static const String perMonth = 'per month';
+  static const String perContract = 'per contract';
+  static const String hM = 'HR Manager';
+  static const String payNow = 'pay now';
+}
