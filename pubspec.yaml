@@ -21,6 +21,7 @@ dependencies:
   hive_flutter: ^1.1.0
   csv: ^6.0.0
   get_it: ^8.0.3
+  rxdart: ^0.28.0
 
 dev_dependencies:
   flutter_test:

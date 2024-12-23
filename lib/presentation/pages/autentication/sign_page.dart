@@ -13,6 +13,7 @@ import 'package:tax_app/presentation/widgets/common/btrn.dart';
 import 'package:tax_app/presentation/widgets/common/text_field.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tax_app/core/di/injection_container.dart';
+import 'package:rxdart/rxdart.dart';
 
 class SignUpPage extends HookWidget {
   const SignUpPage({super.key});
@@ -23,6 +24,27 @@ class SignUpPage extends HookWidget {
     final emailController = useTextEditingController();
     final passwordController = useTextEditingController();
     final passwordFocusNode = useFocusNode();
+    
+    // Add BehaviorSubject for form validation
+    final isValidSubject = useMemoized(() => BehaviorSubject<bool>.seeded(false));
+
+    // Add listeners to controllers
+    useEffect(() {
+      void validateForm() {
+        final emailValid = Validation.validateEmail(emailController.text) == null;
+        final passwordValid = Validation.validatePassword(passwordController.text) == null;
+        isValidSubject.add(emailValid && passwordValid);
+      }
+
+      emailController.addListener(validateForm);
+      passwordController.addListener(validateForm);
+
+      return () {
+        emailController.removeListener(validateForm);
+        passwordController.removeListener(validateForm);
+        isValidSubject.close();
+      };
+    }, [emailController, passwordController]);
 
     // Show loading dialog
     void showLoadingDialog() {
@@ -134,21 +156,29 @@ class SignUpPage extends HookWidget {
                           const SizedBox(height: 26),
                           SizedBox(
                             width: double.infinity,
-                            child: BlocBuilder<SignUpBloc, SignUpState>(
-                              builder: (context, state) {
-                                return button(
-                                  'Sign up',
-                                  () {
-                                    if (formKey.currentState!.validate()) {
-                                      context.read<SignUpBloc>().add(
-                                            SignUpSubmitted(
-                                              email: emailController.text,
-                                              password: passwordController.text,
-                                            ),
-                                          );
-                                    }
+                            child: StreamBuilder<bool>(
+                              stream: isValidSubject,
+                              builder: (context, snapshot) {
+                                final isValid = snapshot.data ?? false;
+                                return BlocBuilder<SignUpBloc, SignUpState>(
+                                  builder: (context, state) {
+                                    return button(
+                                      'Sign up',
+                                      isValid
+                                          ? () {
+                                              if (formKey.currentState!.validate()) {
+                                                context.read<SignUpBloc>().add(
+                                                      SignUpSubmitted(
+                                                        email: emailController.text,
+                                                        password: passwordController.text,
+                                                      ),
+                                                    );
+                                              }
+                                            }
+                                          : null,
+                                      isValid,
+                                    );
                                   },
-                                  state is SignUpLoading,
                                 );
                               },
                             ),

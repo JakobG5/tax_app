@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tax_app/core/constants/color_constant.dart';
 import 'package:tax_app/core/themes/text_theme.dart';
 
-Widget button(String titile, VoidCallback onPressed, bool isActive) {
+Widget button(String title, VoidCallback? onPressed, bool isActive) {
   return GestureDetector(
     onTap: onPressed,
     child: Container(
@@ -14,7 +14,7 @@ Widget button(String titile, VoidCallback onPressed, bool isActive) {
       ),
       child: Center(
         child: Text(
-          titile,
+          title,
           style: DemozTH.body1Regular.copyWith(
               color: isActive ? DemozColors.white : DemozColors.black),
         ),
