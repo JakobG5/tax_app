@@ -9,7 +9,11 @@ class UserRepositoryImpl implements UserRepository {
 
   @override
   Future<void> signUp(User user) async {
+    if (await _localStorage.isEmailTaken(user.email)) {
+      throw Exception('Email is already registered');
+    }
     await _localStorage.saveUserCredentials(user.email, user.password);
+    // await _localStorage.put('isSignedIn', true); // Set the isSignedIn flag
   }
 
   @override

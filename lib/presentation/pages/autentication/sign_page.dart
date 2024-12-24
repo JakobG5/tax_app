@@ -7,13 +7,17 @@ import 'package:tax_app/core/constants/text_constant.dart';
 import 'package:tax_app/core/themes/text_theme.dart';
 import 'package:tax_app/core/utils/helper.dart';
 import 'package:tax_app/core/utils/validation.dart';
+import 'package:tax_app/data/datasources/local/user_local_storage.dart';
 import 'package:tax_app/presentation/blocs/sign_up_bloc.dart';
+import 'package:tax_app/presentation/pages/componyProfile/create_compony_data.dart';
 import 'package:tax_app/presentation/widgets/auth/social_btn.dart';
 import 'package:tax_app/presentation/widgets/common/btrn.dart';
 import 'package:tax_app/presentation/widgets/common/text_field.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tax_app/core/di/injection_container.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:tax_app/presentation/blocs/auth/auth_bloc.dart';
+import 'package:tax_app/presentation/pages/autentication/login_page.dart'; // Import the login page
+import 'package:tax_app/core/route/main_route.dart'; // Import the main route
 
 class SignUpPage extends HookWidget {
   const SignUpPage({super.key});
@@ -24,64 +28,58 @@ class SignUpPage extends HookWidget {
     final emailController = useTextEditingController();
     final passwordController = useTextEditingController();
     final passwordFocusNode = useFocusNode();
-    
-    // Add BehaviorSubject for form validation
-    final isValidSubject = useMemoized(() => BehaviorSubject<bool>.seeded(false));
-
-    // Add listeners to controllers
-    useEffect(() {
-      void validateForm() {
-        final emailValid = Validation.validateEmail(emailController.text) == null;
-        final passwordValid = Validation.validatePassword(passwordController.text) == null;
-        isValidSubject.add(emailValid && passwordValid);
-      }
-
-      emailController.addListener(validateForm);
-      passwordController.addListener(validateForm);
-
-      return () {
-        emailController.removeListener(validateForm);
-        passwordController.removeListener(validateForm);
-        isValidSubject.close();
-      };
-    }, [emailController, passwordController]);
-
-    // Show loading dialog
-    void showLoadingDialog() {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(
-          child: Card(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: CircularProgressIndicator(),
-            ),
-          ),
-        ),
-      );
-    }
 
     return BlocProvider(
       create: (context) => sl<SignUpBloc>(),
       child: Scaffold(
         body: BlocListener<SignUpBloc, SignUpState>(
-          listener: (context, state) {
+          listener: (context, state) async {
             if (state is SignUpLoading) {
-              showLoadingDialog();
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const Center(
+                  child: Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                ),
+              );
             } else {
-              // Dismiss loading dialog if it's showing
               if (Navigator.canPop(context)) {
                 Navigator.pop(context);
               }
 
               if (state is SignUpSuccess) {
-                // Navigate to next screen
+                print('Sign-up successful');
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Sign up successful!')),
                 );
-                // Add navigation logic here
+                context.read<AuthBloc>().add(CheckAuthStatus());
+
+                final userStorage = sl<UserLocalStorage>();
+                final companyData =
+                    await userStorage.getCompanyData(emailController.text);
+                print('Company data after sign-up: $companyData');
+
+                if (companyData.isEmpty) {
+                  print('Navigating to company profile creation page');
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ComponyProfile()),
+                  );
+                } else {
+                  print('Navigating to main route');
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MainRoute()),
+                  );
+                }
               } else if (state is SignUpFailure) {
+                print('Sign-up error: ${state.error}');
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(state.error)),
                 );
@@ -156,29 +154,24 @@ class SignUpPage extends HookWidget {
                           const SizedBox(height: 26),
                           SizedBox(
                             width: double.infinity,
-                            child: StreamBuilder<bool>(
-                              stream: isValidSubject,
-                              builder: (context, snapshot) {
-                                final isValid = snapshot.data ?? false;
-                                return BlocBuilder<SignUpBloc, SignUpState>(
-                                  builder: (context, state) {
-                                    return button(
-                                      'Sign up',
-                                      isValid
-                                          ? () {
-                                              if (formKey.currentState!.validate()) {
-                                                context.read<SignUpBloc>().add(
-                                                      SignUpSubmitted(
-                                                        email: emailController.text,
-                                                        password: passwordController.text,
-                                                      ),
-                                                    );
-                                              }
-                                            }
-                                          : null,
-                                      isValid,
-                                    );
+                            child: BlocBuilder<SignUpBloc, SignUpState>(
+                              builder: (context, state) {
+                                return button(
+                                  'Sign up',
+                                  () {
+                                    if (formKey.currentState!.validate()) {
+                                      print(
+                                          'Attempting to sign up with email: ${emailController.text}');
+                                      context.read<SignUpBloc>().add(
+                                            SignUpSubmitted(
+                                              email: emailController.text,
+                                              password: passwordController.text,
+                                              context: context,
+                                            ),
+                                          );
+                                    }
                                   },
+                                  state is SignUpLoading,
                                 );
                               },
                             ),
@@ -209,7 +202,13 @@ class SignUpPage extends HookWidget {
                                     ),
                                     recognizer: TapGestureRecognizer()
                                       ..onTap = () {
-                                        // Add navigation to login page
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const LoginPage(),
+                                          ),
+                                        );
                                       },
                                   ),
                                 ],

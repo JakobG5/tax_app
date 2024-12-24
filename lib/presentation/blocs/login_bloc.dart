@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tax_app/core/route/main_route.dart';
-import 'package:tax_app/data/datasources/local/user_local_storage.dart';
+import '../../data/datasources/local/user_local_storage.dart';
 import 'package:tax_app/presentation/pages/componyProfile/create_compony_data.dart'; // Import the company profile creation page
 import 'package:tax_app/core/di/injection_container.dart'; // Import the injection container
 
 // Events
-abstract class SignUpEvent {}
+abstract class LoginEvent {}
 
-class SignUpSubmitted extends SignUpEvent {
+class LoginSubmitted extends LoginEvent {
   final String email;
   final String password;
   final BuildContext context; // Add BuildContext
 
-  SignUpSubmitted({
+  LoginSubmitted({
     required this.email,
     required this.password,
     required this.context,
@@ -21,61 +21,62 @@ class SignUpSubmitted extends SignUpEvent {
 }
 
 // States
-abstract class SignUpState {}
+abstract class LoginState {}
 
-class SignUpInitial extends SignUpState {}
+class LoginInitial extends LoginState {}
 
-class SignUpLoading extends SignUpState {}
+class LoginLoading extends LoginState {}
 
-class SignUpSuccess extends SignUpState {}
+class LoginSuccess extends LoginState {}
 
-class SignUpFailure extends SignUpState {
+class LoginFailure extends LoginState {
   final String error;
-  SignUpFailure(this.error);
+  LoginFailure(this.error);
 }
 
-class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
+class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final UserLocalStorage userStorage;
 
-  SignUpBloc({required this.userStorage}) : super(SignUpInitial()) {
-    on<SignUpSubmitted>(_onSignUpSubmitted);
+  LoginBloc({required this.userStorage}) : super(LoginInitial()) {
+    on<LoginSubmitted>(_onLoginSubmitted);
   }
 
-  Future<void> _onSignUpSubmitted(
-    SignUpSubmitted event,
-    Emitter<SignUpState> emit,
+  Future<void> _onLoginSubmitted(
+    LoginSubmitted event,
+    Emitter<LoginState> emit,
   ) async {
     try {
-      print('Attempting to sign up with email: ${event.email}');
-      emit(SignUpLoading());
-      final isEmailTaken = await userStorage.isEmailTaken(event.email);
-      if (isEmailTaken) {
-        emit(SignUpFailure('Email is already taken'));
-      } else {
-        await userStorage.saveUserCredentials(event.email, event.password);
+      print('Attempting to log in with email: ${event.email}');
+      emit(LoginLoading());
+
+      final users = await userStorage.getAllUsers();
+      final userExists = users.any((user) =>
+          user['email'] == event.email && user['password'] == event.password);
+
+      if (userExists) {
         final companyData = await userStorage.getCompanyData(event.email);
         print('Company data for ${event.email}: $companyData');
         if (companyData.isEmpty) {
           // Navigate to company profile creation page
-          print('Navigating to company profile creation page');
-          emit(SignUpSuccess());
+          emit(LoginSuccess());
           Navigator.pushReplacement(
             event.context,
             MaterialPageRoute(builder: (context) => const ComponyProfile()),
           );
         } else {
-          print('Navigating to main route');
-          emit(SignUpSuccess());
+          emit(LoginSuccess());
           // await userStorage.put('isSignedIn', true); // Set the isSignedIn flag
           Navigator.pushReplacement(
             event.context,
             MaterialPageRoute(builder: (context) => const MainRoute()),
           );
         }
+      } else {
+        emit(LoginFailure('Invalid email or password'));
       }
     } catch (e) {
-      print('Sign-up error: $e');
-      emit(SignUpFailure(e.toString()));
+      print('Login error: $e');
+      emit(LoginFailure(e.toString()));
     }
   }
 }

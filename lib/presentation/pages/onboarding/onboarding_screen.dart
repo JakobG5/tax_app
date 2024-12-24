@@ -5,6 +5,8 @@ import 'package:tax_app/core/constants/text_constant.dart';
 import 'package:tax_app/core/themes/text_theme.dart';
 import 'package:tax_app/core/utils/helper.dart';
 import 'package:tax_app/presentation/widgets/common/btrn.dart';
+import 'package:tax_app/presentation/pages/autentication/login_page.dart';
+import 'package:tax_app/presentation/pages/autentication/sign_page.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -66,8 +68,24 @@ class OnboardingScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      button(DemozTex.login, () {}, false),
-                      button(DemozTex.signup, () {}, false),
+                      button(
+                        DemozTex.login, 
+                        () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const LoginPage(),
+                          ),
+                        ), 
+                        false
+                      ),
+                      button(
+                        DemozTex.signup, 
+                        () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const SignUpPage(),
+                          ),
+                        ), 
+                        false
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
