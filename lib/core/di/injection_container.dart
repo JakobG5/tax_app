@@ -29,8 +29,10 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => SignUpUseCase(sl()));
 
   // Blocs
-  sl.registerFactory(() => SignUpBloc(userStorage: sl<UserLocalStorage>()));
-  sl.registerFactory(() => LoginBloc(userStorage: sl<UserLocalStorage>()));
-  sl.registerFactory(() => AuthBloc(userStorage: sl()));
+  sl.registerFactory(() => AuthBloc(userStorage: sl<UserLocalStorage>()));
+  sl.registerFactory(() => SignUpBloc(
+      userStorage: sl<UserLocalStorage>(), authBloc: sl<AuthBloc>()));
+  sl.registerFactory(() =>
+      LoginBloc(userStorage: sl<UserLocalStorage>(), authBloc: sl<AuthBloc>()));
   sl.registerFactory(() => CompanyBloc(userStorage: sl<UserLocalStorage>()));
 }

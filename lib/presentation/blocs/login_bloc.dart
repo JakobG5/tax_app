@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tax_app/core/route/main_route.dart';
-import '../../data/datasources/local/user_local_storage.dart';
-import 'package:tax_app/presentation/pages/componyProfile/create_compony_data.dart'; // Import the company profile creation page
-import 'package:tax_app/core/di/injection_container.dart'; // Import the injection container
+import 'package:tax_app/data/datasources/local/user_local_storage.dart';
+import 'package:tax_app/presentation/blocs/auth/auth_bloc.dart';
 
 // Events
 abstract class LoginEvent {}
@@ -36,8 +34,10 @@ class LoginFailure extends LoginState {
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final UserLocalStorage userStorage;
+  final AuthBloc authBloc;
 
-  LoginBloc({required this.userStorage}) : super(LoginInitial()) {
+  LoginBloc({required this.userStorage, required this.authBloc})
+      : super(LoginInitial()) {
     on<LoginSubmitted>(_onLoginSubmitted);
   }
 
@@ -54,23 +54,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           user['email'] == event.email && user['password'] == event.password);
 
       if (userExists) {
-        final companyData = await userStorage.getCompanyData(event.email);
-        print('Company data for ${event.email}: $companyData');
-        if (companyData.isEmpty) {
-          // Navigate to company profile creation page
-          emit(LoginSuccess());
-          Navigator.pushReplacement(
-            event.context,
-            MaterialPageRoute(builder: (context) => const ComponyProfile()),
-          );
-        } else {
-          emit(LoginSuccess());
-          // await userStorage.put('isSignedIn', true); // Set the isSignedIn flag
-          Navigator.pushReplacement(
-            event.context,
-            MaterialPageRoute(builder: (context) => const MainRoute()),
-          );
-        }
+        authBloc.add(CheckAuthStatus());
+        emit(LoginSuccess());
       } else {
         emit(LoginFailure('Invalid email or password'));
       }

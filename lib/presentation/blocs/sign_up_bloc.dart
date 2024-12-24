@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tax_app/core/route/main_route.dart';
 import 'package:tax_app/data/datasources/local/user_local_storage.dart';
-import 'package:tax_app/presentation/pages/componyProfile/create_compony_data.dart'; // Import the company profile creation page
-import 'package:tax_app/core/di/injection_container.dart'; // Import the injection container
+import 'package:tax_app/presentation/blocs/auth/auth_bloc.dart';
 
 // Events
 abstract class SignUpEvent {}
@@ -36,8 +34,10 @@ class SignUpFailure extends SignUpState {
 
 class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
   final UserLocalStorage userStorage;
+  final AuthBloc authBloc;
 
-  SignUpBloc({required this.userStorage}) : super(SignUpInitial()) {
+  SignUpBloc({required this.userStorage, required this.authBloc})
+      : super(SignUpInitial()) {
     on<SignUpSubmitted>(_onSignUpSubmitted);
   }
 
@@ -53,25 +53,8 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
         emit(SignUpFailure('Email is already taken'));
       } else {
         await userStorage.saveUserCredentials(event.email, event.password);
-        final companyData = await userStorage.getCompanyData(event.email);
-        print('Company data for ${event.email}: $companyData');
-        if (companyData.isEmpty) {
-          // Navigate to company profile creation page
-          print('Navigating to company profile creation page');
-          emit(SignUpSuccess());
-          Navigator.pushReplacement(
-            event.context,
-            MaterialPageRoute(builder: (context) => const ComponyProfile()),
-          );
-        } else {
-          print('Navigating to main route');
-          emit(SignUpSuccess());
-          // await userStorage.put('isSignedIn', true); // Set the isSignedIn flag
-          Navigator.pushReplacement(
-            event.context,
-            MaterialPageRoute(builder: (context) => const MainRoute()),
-          );
-        }
+        authBloc.add(CheckAuthStatus());
+        emit(SignUpSuccess());
       }
     } catch (e) {
       print('Sign-up error: $e');

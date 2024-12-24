@@ -10,6 +10,8 @@ class CheckAuthStatus extends AuthEvent {}
 
 class SignOut extends AuthEvent {}
 
+class CheckCompanyData extends AuthEvent {}
+
 // States
 
 class Authenticated extends AuthState {
@@ -19,6 +21,18 @@ class Authenticated extends AuthState {
 }
 
 class Unauthenticated extends AuthState {}
+
+class AuthenticatedWithCompanyData extends AuthState {
+  final String email;
+
+  AuthenticatedWithCompanyData(this.email);
+}
+
+class AuthenticatedWithoutCompanyData extends AuthState {
+  final String email;
+
+  AuthenticatedWithoutCompanyData(this.email);
+}
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final UserLocalStorage userStorage;
@@ -30,6 +44,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (isSignedIn) {
         final credentials = await userStorage.getUserCredentials();
         emit(Authenticated(credentials!['email']));
+        add(CheckCompanyData());
       } else {
         emit(Unauthenticated());
       }
@@ -38,6 +53,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SignOut>((event, emit) async {
       await userStorage.signOut();
       emit(Unauthenticated());
+    });
+
+    on<CheckCompanyData>((event, emit) async {
+      if (state is Authenticated) {
+        final email = (state as Authenticated).email;
+        final companyData = await userStorage.getCompanyData(email);
+        if (companyData.isNotEmpty) {
+          emit(AuthenticatedWithCompanyData(email));
+        } else {
+          emit(AuthenticatedWithoutCompanyData(email));
+        }
+      }
     });
   }
 }
