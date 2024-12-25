@@ -9,7 +9,7 @@ abstract class LoginEvent {}
 class LoginSubmitted extends LoginEvent {
   final String email;
   final String password;
-  final BuildContext context; // Add BuildContext
+  final BuildContext context;
 
   LoginSubmitted({
     required this.email,
@@ -18,7 +18,7 @@ class LoginSubmitted extends LoginEvent {
   });
 }
 
-// States
+// Login States
 abstract class LoginState {}
 
 class LoginInitial extends LoginState {}
@@ -31,7 +31,6 @@ class LoginFailure extends LoginState {
   final String error;
   LoginFailure(this.error);
 }
-
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final UserLocalStorage userStorage;
   final AuthBloc authBloc;
@@ -54,6 +53,13 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           user['email'] == event.email && user['password'] == event.password);
 
       if (userExists) {
+        // Update isSignedIn in local storage
+        await userStorage.setIsSignedIn(true);
+
+        // Save the current email
+        await userStorage.saveCurrentEmail(event.email);
+
+        // Call CheckAuthStatus in AuthBloc
         authBloc.add(CheckAuthStatus());
         emit(LoginSuccess());
       } else {

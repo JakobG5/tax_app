@@ -1,13 +1,75 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tax_app/core/constants/color_constant.dart';
 import 'package:tax_app/core/constants/text_constant.dart';
 import 'package:tax_app/core/themes/text_theme.dart';
 import 'package:tax_app/core/utils/helper.dart';
+import 'package:tax_app/presentation/blocs/addEmployeeBloc.dart';
 import 'package:tax_app/presentation/widgets/common/btrn.dart';
 import 'package:tax_app/presentation/widgets/common/text_field.dart';
 
-class EmployeeAdd extends StatelessWidget {
+class EmployeeAdd extends StatefulWidget {
   const EmployeeAdd({super.key});
+
+  @override
+  _EmployeeAddState createState() => _EmployeeAddState();
+}
+
+class _EmployeeAddState extends State<EmployeeAdd> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _employeeNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _tinNumberController = TextEditingController();
+  final TextEditingController _grossSalaryController = TextEditingController();
+  final TextEditingController _taxableEarningController =
+      TextEditingController();
+  final TextEditingController _startingDateOfSalaryController =
+      TextEditingController();
+
+  @override
+  void dispose() {
+    _employeeNameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _tinNumberController.dispose();
+    _grossSalaryController.dispose();
+    _taxableEarningController.dispose();
+    _startingDateOfSalaryController.dispose();
+    super.dispose();
+  }
+
+  void _saveEmployee() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      final employeeData = {
+        'employeeName': _employeeNameController.text,
+        'email': _emailController.text,
+        'phoneNumber': _phoneController.text,
+        'tinNumber': _tinNumberController.text,
+        'grossSalary': _grossSalaryController.text,
+        'taxableEarning': _taxableEarningController.text,
+        'startingDateOfSalary': _startingDateOfSalaryController.text,
+      };
+
+      BlocProvider.of<EmployeeAddBloc>(context).addEmployee(employeeData);
+    }
+  }
+
+  Future<void> _selectStartingDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (picked != null) {
+      setState(() {
+        _startingDateOfSalaryController.text =
+            "${picked.month.toString().padLeft(2, '0')}/${picked.day.toString().padLeft(2, '0')}/${picked.year}";
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,89 +77,99 @@ class EmployeeAdd extends StatelessWidget {
       backgroundColor: DemozColors.white,
       body: SingleChildScrollView(
         child: SizedBox(
-          height: DemozHelper.getHeight(context),
+          height: DemozHelper.getHeight(context) + 50,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18),
             child: SizedBox(
               height: double.infinity,
               width: double.infinity,
               child: SafeArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        InkWell(
-                          onTap: () {},
-                          child: const Icon(
-                            Icons.navigate_before_sharp,
-                            size: 30,
-                          ),
-                        ),
-                        Text(
-                          DemozTex.addEmp,
-                          style: DemozTH.pop.copyWith(fontSize: 22),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Text.rich(
-                      TextSpan(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const TextSpan(
-                            text: DemozTex.addN,
-                            style: DemozTH.header4,
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Icon(
+                              Icons.navigate_before_sharp,
+                              size: 30,
+                            ),
                           ),
-                          TextSpan(
-                            text: DemozTex.emp,
-                            style: DemozTH.header4
-                                .copyWith(color: DemozColors.primaryBlue),
+                          Text(
+                            DemozTex.addEmp,
+                            style: DemozTH.pop.copyWith(fontSize: 22),
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      DemozTex.hereyouaddyour,
-                      style: DemozTH.body1Regular.copyWith(
-                        color: DemozColors.grey,
+                      const SizedBox(height: 20),
+                      // Employee Name
+                      CustomTextField(
+                        controller: _employeeNameController,
+                        hint: DemozTex.emName,
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    const CustomTextField(hint: DemozTex.emName),
-                    const SizedBox(height: 18),
-                    const CustomTextField(hint: DemozTex.emailA),
-                    const SizedBox(height: 18),
-                    const CustomTextField(hint: DemozTex.phoneNumber),
-                    const SizedBox(height: 18),
-                    const CustomTextField(hint: DemozTex.comTN),
-                    const SizedBox(height: 18),
-                    const CustomTextField(hint: DemozTex.grossSalary),
-                    const SizedBox(height: 18),
-                    const CustomTextField(hint: DemozTex.taxableEarning),
-                    const SizedBox(height: 18),
-                    const CustomTextField(hint: DemozTex.startingDate),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        salaryType(DemozTex.perMonth, () {}),
-                        const SizedBox(width: 12),
-                        salaryType(DemozTex.perContract, () {}),
-                      ],
-                    ),
-                    const Spacer(),
-                    SizedBox(
-                      width: double.infinity,
-                      child: button(
-                        DemozTex.addEmp,
-                        () {},
-                        false,
+                      const SizedBox(height: 18),
+                      // Email
+                      CustomTextField(
+                        controller: _emailController,
+                        hint: DemozTex.emailA,
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
+                      const SizedBox(height: 18),
+                      // Phone Number
+                      CustomTextField(
+                        controller: _phoneController,
+                        hint: DemozTex.phoneNumber,
+                      ),
+                      const SizedBox(height: 18),
+                      // TIN Number
+                      CustomTextField(
+                        controller: _tinNumberController,
+                        hint: 'TIN Number',
+                      ),
+                      const SizedBox(height: 18),
+                      // Gross Salary
+                      CustomTextField(
+                        controller: _grossSalaryController,
+                        hint: 'Gross Salary',
+                        inputType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 18),
+                      // Taxable Earning
+                      CustomTextField(
+                        controller: _taxableEarningController,
+                        hint: 'Taxable Earning',
+                        inputType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 20),
+                      // Starting Date of Salary
+                      GestureDetector(
+                        onTap: () => _selectStartingDate(context),
+                        child: AbsorbPointer(
+                          child: CustomTextField(
+                            controller: _startingDateOfSalaryController,
+                            hint: 'Starting Date of Salary',
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        child: button(
+                          DemozTex.addEmp,
+                          _saveEmployee,
+                          false,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -106,24 +178,4 @@ class EmployeeAdd extends StatelessWidget {
       ),
     );
   }
-}
-
-Widget salaryType(String title, Function()? onPressed) {
-  return InkWell(
-    onTap: () {},
-    child: Container(
-      height: 36,
-      width: 124,
-      decoration: BoxDecoration(
-        color: const Color(0XFF3085FE).withOpacity(0.4),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Center(
-        child: Text(
-          DemozTex.perMonth,
-          style: DemozTH.body2Regular.copyWith(color: DemozColors.white),
-        ),
-      ),
-    ),
-  );
 }

@@ -13,7 +13,7 @@ class UserRepositoryImpl implements UserRepository {
       throw Exception('Email is already registered');
     }
     await _localStorage.saveUserCredentials(user.email, user.password);
-    // await _localStorage.put('isSignedIn', true); // Set the isSignedIn flag
+    await _localStorage.put('isSignedIn', true); // Set the isSignedIn flag
   }
 
   @override

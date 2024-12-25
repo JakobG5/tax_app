@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tax_app/presentation/blocs/auth/auth_bloc.dart';
 import 'package:tax_app/core/route/main_route.dart';
-import 'package:tax_app/presentation/pages/componyProfile/company_profile.dart';
 import 'package:tax_app/presentation/pages/onboarding/onboarding_screen.dart';
 import 'package:tax_app/core/di/injection_container.dart';
 
@@ -28,10 +27,8 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
-        if (state is AuthenticatedWithCompanyData) {
+        if (state is Authenticated) {
           return const MainRoute();
-        } else if (state is AuthenticatedWithoutCompanyData) {
-          return const CompanyProfile();
         } else {
           return const OnboardingScreen();
         }

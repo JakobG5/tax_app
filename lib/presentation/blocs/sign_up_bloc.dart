@@ -31,7 +31,6 @@ class SignUpFailure extends SignUpState {
   final String error;
   SignUpFailure(this.error);
 }
-
 class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
   final UserLocalStorage userStorage;
   final AuthBloc authBloc;
@@ -48,13 +47,22 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     try {
       print('Attempting to sign up with email: ${event.email}');
       emit(SignUpLoading());
+
       final isEmailTaken = await userStorage.isEmailTaken(event.email);
       if (isEmailTaken) {
         emit(SignUpFailure('Email is already taken'));
       } else {
         await userStorage.saveUserCredentials(event.email, event.password);
-        authBloc.add(CheckAuthStatus());
+        await userStorage.setIsSignedIn(true); // Mark as signed in
+
+        // Save the current email
+        await userStorage.saveCurrentEmail(event.email);
+
+        print('Sign up success with email: ${event.email}');
         emit(SignUpSuccess());
+
+        // Trigger AuthBloc to rebuild
+        authBloc.add(CheckAuthStatus());
       }
     } catch (e) {
       print('Sign-up error: $e');

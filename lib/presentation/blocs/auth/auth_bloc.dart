@@ -4,15 +4,12 @@ import 'package:tax_app/data/datasources/local/user_local_storage.dart';
 // Events
 abstract class AuthEvent {}
 
-abstract class AuthState {}
-
 class CheckAuthStatus extends AuthEvent {}
 
 class SignOut extends AuthEvent {}
 
-class CheckCompanyData extends AuthEvent {}
-
 // States
+abstract class AuthState {}
 
 class Authenticated extends AuthState {
   final String email;
@@ -22,29 +19,16 @@ class Authenticated extends AuthState {
 
 class Unauthenticated extends AuthState {}
 
-class AuthenticatedWithCompanyData extends AuthState {
-  final String email;
-
-  AuthenticatedWithCompanyData(this.email);
-}
-
-class AuthenticatedWithoutCompanyData extends AuthState {
-  final String email;
-
-  AuthenticatedWithoutCompanyData(this.email);
-}
-
+// Bloc
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final UserLocalStorage userStorage;
 
   AuthBloc({required this.userStorage}) : super(Unauthenticated()) {
     on<CheckAuthStatus>((event, emit) async {
-      final isSignedIn =
-          await userStorage.isSignedIn(); // Check the actual status
+      final isSignedIn = await userStorage.isSignedIn();
       if (isSignedIn) {
         final credentials = await userStorage.getUserCredentials();
         emit(Authenticated(credentials!['email']));
-        add(CheckCompanyData());
       } else {
         emit(Unauthenticated());
       }
@@ -52,19 +36,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<SignOut>((event, emit) async {
       await userStorage.signOut();
+      await userStorage.saveCurrentEmail('');
+      await userStorage.setIsSignedIn(false);
       emit(Unauthenticated());
-    });
-
-    on<CheckCompanyData>((event, emit) async {
-      if (state is Authenticated) {
-        final email = (state as Authenticated).email;
-        final companyData = await userStorage.getCompanyData(email);
-        if (companyData.isNotEmpty) {
-          emit(AuthenticatedWithCompanyData(email));
-        } else {
-          emit(AuthenticatedWithoutCompanyData(email));
-        }
-      }
     });
   }
 }

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tax_app/core/constants/color_constant.dart';
 import 'package:tax_app/core/constants/image_path_constant.dart';
 import 'package:tax_app/core/constants/text_constant.dart';
+import 'package:tax_app/core/route/main_route.dart';
 import 'package:tax_app/core/themes/text_theme.dart';
 import 'package:tax_app/core/utils/helper.dart';
 import 'package:tax_app/core/utils/validation.dart';
@@ -14,8 +15,6 @@ import 'package:tax_app/presentation/widgets/auth/social_btn.dart';
 import 'package:tax_app/presentation/widgets/common/btrn.dart';
 import 'package:tax_app/presentation/widgets/common/text_field.dart';
 import 'package:tax_app/core/di/injection_container.dart';
-import 'package:tax_app/presentation/blocs/auth/auth_bloc.dart';
-import 'package:tax_app/core/route/main_route.dart'; // Import the main route
 
 class LoginPage extends HookWidget {
   const LoginPage({super.key});
@@ -56,6 +55,8 @@ class LoginPage extends HookWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Login successful!')),
                 );
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => const MainRoute()));
               } else if (state is LoginFailure) {
                 print('Login failed: ${state.error}');
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -144,8 +145,7 @@ class LoginPage extends HookWidget {
                                             LoginSubmitted(
                                               email: emailController.text,
                                               password: passwordController.text,
-                                              context:
-                                                  context, // Pass BuildContext
+                                              context: context,
                                             ),
                                           );
                                     } else {
