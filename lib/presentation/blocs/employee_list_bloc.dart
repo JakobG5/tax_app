@@ -9,15 +9,22 @@ class EmployeeListBloc extends Cubit<EmployeeListState> {
   Future<void> loadEmployees() async {
     try {
       emit(EmployeeListLoading());
-      print('Loading employees from storage...'); // Debug print
+      
+      // Get current user's email
+      final currentEmail = await userLocalStorage.getCurrentEmail();
+      if (currentEmail == null) {
+        emit(EmployeeListError(message: 'User not logged in'));
+        return;
+      }
 
-      final employees = await userLocalStorage.getAllEmployeeData();
-      print('Loaded ${employees.length} employees'); // Debug print
-      print('Employee data: $employees'); // Debug print
+      // Get all employees and filter by creator
+      final allEmployees = await userLocalStorage.getAllEmployeeData();
+      final userEmployees = allEmployees.where((employee) => 
+        employee['createdBy'] == currentEmail
+      ).toList();
 
-      emit(EmployeeListLoaded(employees));
+      emit(EmployeeListLoaded(userEmployees));
     } catch (e) {
-      print('Error loading employees: $e'); // Debug print
       emit(EmployeeListError(message: e.toString()));
     }
   }
@@ -38,4 +45,4 @@ class EmployeeListLoaded extends EmployeeListState {
 class EmployeeListError extends EmployeeListState {
   final String message;
   EmployeeListError({required this.message});
-}
+} 

@@ -64,17 +64,27 @@ class EmployeeList extends StatelessWidget {
                                 DataColumn(label: Text('Gross Salary')),
                                 DataColumn(label: Text('Taxable Earning')),
                                 DataColumn(label: Text('Start Date')),
+                                DataColumn(label: Text('Gender')),
                               ],
                               rows: state.employees.map((employee) {
                                 return DataRow(
                                   cells: [
-                                    DataCell(Text(employee['employeeName'] ?? '')),
+                                    DataCell(
+                                        Text(employee['employeeName'] ?? '')),
                                     DataCell(Text(employee['email'] ?? '')),
-                                    DataCell(Text(employee['phoneNumber'] ?? '')),
+                                    DataCell(
+                                        Text(employee['phoneNumber'] ?? '')),
                                     DataCell(Text(employee['tinNumber'] ?? '')),
-                                    DataCell(Text(employee['grossSalary']?.toString() ?? '')),
-                                    DataCell(Text(employee['taxableEarning']?.toString() ?? '')),
-                                    DataCell(Text(employee['startingDateOfSalary'] ?? '')),
+                                    DataCell(Text(
+                                        employee['grossSalary']?.toString() ??
+                                            '')),
+                                    DataCell(Text(employee['taxableEarning']
+                                            ?.toString() ??
+                                        '')),
+                                    DataCell(Text(
+                                        employee['startingDateOfSalary'] ??
+                                            '')),
+                                    DataCell(Text(employee['gender'] ?? '')),
                                   ],
                                 );
                               }).toList(),

@@ -1,3 +1,4 @@
+
 import 'package:hive/hive.dart';
 
 abstract class UserLocalStorage {
@@ -58,8 +59,7 @@ class HiveUserStorage implements UserLocalStorage {
   Future<List<Map<String, dynamic>>> getAllUsers() async {
     final usersList =
         _userBox.get(_usersListKey, defaultValue: <Map<String, dynamic>>[]);
-    return List<Map<String, dynamic>>.from(
-        usersList.map((user) => Map<String, dynamic>.from(user)));
+    return List<Map<String, dynamic>>.from(usersList.map((user) => Map<String, dynamic>.from(user)));
   }
 
   @override
@@ -73,8 +73,7 @@ class HiveUserStorage implements UserLocalStorage {
   Future<List<Map<String, dynamic>>> getAllEmployeeData() async {
     final employeeList =
         _userBox.get(_employeeListKey, defaultValue: <Map<String, dynamic>>[]);
-    return List<Map<String, dynamic>>.from(
-        employeeList.map((employee) => Map<String, dynamic>.from(employee)));
+    return List<Map<String, dynamic>>.from(employeeList.map((employee) => Map<String, dynamic>.from(employee)));
   }
 
   @override
@@ -127,9 +126,8 @@ class HiveUserStorage implements UserLocalStorage {
         final createdBy = company['createdBy']?.toString();
         return createdBy == email;
       }).toList();
-
-      print(
-          'Found ${matchingCompanies.length} companies for email: $email'); // Debug log
+      
+      print('Found ${matchingCompanies.length} companies for email: $email'); // Debug log
       return matchingCompanies;
     } catch (e) {
       print('Error getting company data for email $email: $e');
@@ -156,11 +154,12 @@ class HiveUserStorage implements UserLocalStorage {
     }
   }
 
-  Future<void> saveUserProfile(
-      String email, Map<String, dynamic> profileData) async {
+  @override
+  Future<void> saveUserProfile(String email, Map<String, dynamic> profileData) async {
     await _userBox.put('$email$_userProfileKey', profileData);
   }
 
+  @override
   Future<Map<String, dynamic>?> getUserProfile(String email) async {
     return _userBox.get('$email$_userProfileKey');
   }

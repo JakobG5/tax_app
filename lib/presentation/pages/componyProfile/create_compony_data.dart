@@ -79,54 +79,54 @@ class CreateCompanyProfile extends HookWidget {
                     key: formKey,
                     child: Column(
                       children: [
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         CustomTextField(
                           hint: 'Company Name',
                           controller: nameController,
                           validator: Validation.validateName,
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         CustomTextField(
                           hint: 'Address of Company',
                           controller: addressController,
                           validator: (value) => Validation.validateRequired(
                               value, 'Address of Company'),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         CustomTextField(
                           hint: 'Phone Number',
                           controller: phoneController,
                           validator: Validation.validatePhone,
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         CustomTextField(
                           hint: 'TIN Number',
                           controller: tinController,
                           validator: (value) =>
                               Validation.validateRequired(value, 'TIN Number'),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         CustomTextField(
                           hint: 'Number of Employees',
                           controller: employeesController,
                           validator: (value) => Validation.validateRequired(
                               value, 'Number of Employees'),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         CustomTextField(
                           hint: 'Company Bank',
                           controller: bankController,
                           validator: (value) => Validation.validateRequired(
                               value, 'Company Bank'),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         CustomTextField(
                           hint: 'Bank Account Number',
                           controller: accountController,
                           validator: (value) => Validation.validateRequired(
                               value, 'Bank Account Number'),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         BlocConsumer<CompanyBloc, CompanyState>(
                           listener: (context, state) {
                             if (state is CompanySubmitted) {

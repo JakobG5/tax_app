@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tax_app/core/constants/color_constant.dart';
 import 'package:tax_app/core/constants/text_constant.dart';
+import 'package:tax_app/presentation/blocs/home/home_bloc.dart';
 
-Widget taxNotification() {
+Widget taxNotification(HomeLoaded state) {
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 8),
     width: double.infinity,
@@ -16,12 +17,12 @@ Widget taxNotification() {
         Expanded(
           child: Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       DemozTex.date,
                       style: TextStyle(
                         fontSize: 12,
@@ -30,8 +31,8 @@ Widget taxNotification() {
                       ),
                     ),
                     Text(
-                      'Aug 28, 2024 - Sep 5,2024',
-                      style: TextStyle(
+                      '${_formatDate(state.nextPaymentStartDate)} - ${_formatDate(state.nextPaymentEndDate)}',
+                      style: const TextStyle(
                         fontSize: 14,
                         color: Color(0xFF101317),
                         fontWeight: FontWeight.w500,
@@ -48,26 +49,27 @@ Widget taxNotification() {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Center(
-                    child: Text(
-                  DemozTex.payNow,
-                  style: TextStyle(
-                    color: DemozColors.lightRed,
-                    fontSize: 12,
+                  child: Text(
+                    DemozTex.payNow,
+                    style: TextStyle(
+                      color: DemozColors.lightRed,
+                      fontSize: 12,
+                    ),
                   ),
-                )),
+                ),
               ),
             ],
           ),
         ),
         const SizedBox(height: 16),
-        const Expanded(
+        Expanded(
           child: Row(
             children: [
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       DemozTex.incomeTax,
                       style: TextStyle(
                         fontSize: 12,
@@ -76,8 +78,8 @@ Widget taxNotification() {
                       ),
                     ),
                     Text(
-                      '4000 etb',
-                      style: TextStyle(
+                      '${state.upcomingIncomeTax.toStringAsFixed(2)} etb',
+                      style: const TextStyle(
                         fontSize: 14,
                         color: Color(0xFF101317),
                         fontWeight: FontWeight.w500,
@@ -86,12 +88,12 @@ Widget taxNotification() {
                   ],
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       DemozTex.pensionTax,
                       style: TextStyle(
                         fontSize: 12,
@@ -100,8 +102,8 @@ Widget taxNotification() {
                       ),
                     ),
                     Text(
-                      '5000 etb',
-                      style: TextStyle(
+                      '${state.upcomingPensionTax.toStringAsFixed(2)} etb',
+                      style: const TextStyle(
                         fontSize: 14,
                         color: Color(0xFF101317),
                         fontWeight: FontWeight.w500,
@@ -110,9 +112,9 @@ Widget taxNotification() {
                   ],
                 ),
               ),
-              SizedBox(width: 8),
-              Expanded(
-                child: Text('August Tax on due'),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text('Upcoming Tax Payment'),
               ),
             ],
           ),
@@ -120,4 +122,26 @@ Widget taxNotification() {
       ],
     ),
   );
+}
+
+String _formatDate(DateTime date) {
+  return '${_getMonthName(date.month)} ${date.day}, ${date.year}';
+}
+
+String _getMonthName(int month) {
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec'
+  ];
+  return months[month - 1];
 }

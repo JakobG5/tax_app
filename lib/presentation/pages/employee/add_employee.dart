@@ -4,6 +4,7 @@ import 'package:tax_app/core/constants/color_constant.dart';
 import 'package:tax_app/core/constants/text_constant.dart';
 import 'package:tax_app/core/themes/text_theme.dart';
 import 'package:tax_app/core/utils/helper.dart';
+import 'package:tax_app/data/datasources/local/user_local_storage.dart';
 import 'package:tax_app/presentation/blocs/addEmployeeBloc.dart';
 import 'package:tax_app/presentation/widgets/common/btrn.dart';
 import 'package:tax_app/presentation/widgets/common/text_field.dart';
@@ -27,6 +28,8 @@ class _EmployeeAddState extends State<EmployeeAdd> {
       TextEditingController();
   final TextEditingController _startingDateOfSalaryController =
       TextEditingController();
+  final List<String> genderOptions = ['Male', 'Female'];
+  String selectedGender = 'Male'; // Default value
 
   @override
   void dispose() {
@@ -43,6 +46,12 @@ class _EmployeeAddState extends State<EmployeeAdd> {
   void _saveEmployee() async {
     if (_formKey.currentState?.validate() ?? false) {
       try {
+        final currentEmail =
+            await context.read<UserLocalStorage>().getCurrentEmail();
+        if (currentEmail == null) {
+          throw 'User not logged in';
+        }
+
         print('Validating form data...'); // Debug print
 
         // Validate and convert numeric values
@@ -71,6 +80,8 @@ class _EmployeeAddState extends State<EmployeeAdd> {
           'grossSalary': grossSalary,
           'taxableEarning': taxableEarning,
           'startingDateOfSalary': _startingDateOfSalaryController.text,
+          'gender': selectedGender,
+          'createdBy': currentEmail,
           'createdAt': DateTime.now().toIso8601String(),
         };
 
@@ -190,7 +201,8 @@ class _EmployeeAddState extends State<EmployeeAdd> {
                         CustomTextField(
                           controller: _tinNumberController,
                           hint: 'TIN Number',
-                          validator: (value) => Validation.validateRequired(value, 'TIN Number'),
+                          validator: (value) =>
+                              Validation.validateRequired(value, 'TIN Number'),
                           inputType: TextInputType.number,
                         ),
                         const SizedBox(height: 18),
@@ -226,7 +238,9 @@ class _EmployeeAddState extends State<EmployeeAdd> {
                               return 'Please enter a valid number';
                             }
                             final taxableEarning = double.parse(value);
-                            final grossSalary = double.tryParse(_grossSalaryController.text) ?? 0;
+                            final grossSalary =
+                                double.tryParse(_grossSalaryController.text) ??
+                                    0;
                             if (taxableEarning > grossSalary) {
                               return 'Taxable earning cannot be greater than gross salary';
                             }
@@ -242,14 +256,32 @@ class _EmployeeAddState extends State<EmployeeAdd> {
                               controller: _startingDateOfSalaryController,
                               hint: 'Starting Date of Salary',
                               validator: (value) => Validation.validateRequired(
-                                value, 
-                                'Starting date'
-                              ),
+                                  value, 'Starting date'),
                             ),
                           ),
                         ),
-
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 18),
+                        DropdownButtonFormField<String>(
+                          value: selectedGender,
+                          decoration: const InputDecoration(
+                            labelText: 'Gender',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: genderOptions.map((String gender) {
+                            return DropdownMenuItem(
+                              value: gender,
+                              child: Text(gender),
+                            );
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedGender = newValue!;
+                            });
+                          },
+                          validator: (value) =>
+                              value == null ? 'Please select gender' : null,
+                        ),
+                        const SizedBox(height: 18),
                         SizedBox(
                           width: double.infinity,
                           child: button(

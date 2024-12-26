@@ -23,6 +23,8 @@ dependencies:
   get_it: ^8.0.3
   rxdart: ^0.28.0
   dartz: ^0.10.1
+  equatable: ^2.0.5
+  fl_chart: ^0.65.0
 
 dev_dependencies:
   flutter_test:
