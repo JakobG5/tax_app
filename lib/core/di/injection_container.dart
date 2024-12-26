@@ -4,10 +4,12 @@ import 'package:tax_app/data/datasources/local/user_local_storage.dart';
 import 'package:tax_app/data/repositories/user_repository_impl.dart';
 import 'package:tax_app/domain/repositories/user_repository.dart';
 import 'package:tax_app/domain/usecases/sign_up_usecase.dart';
+import 'package:tax_app/presentation/blocs/addEmployeeBloc.dart';
 import 'package:tax_app/presentation/blocs/company/company_bloc.dart';
-import 'package:tax_app/presentation/blocs/sign_up_bloc.dart';
 import 'package:tax_app/presentation/blocs/login_bloc.dart';
 import 'package:tax_app/presentation/blocs/auth/auth_bloc.dart';
+import 'package:tax_app/presentation/blocs/employee_list_bloc.dart';
+import 'package:tax_app/presentation/blocs/sign_up_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -35,4 +37,8 @@ Future<void> initializeDependencies() async {
   sl.registerFactory(() =>
       LoginBloc(userStorage: sl<UserLocalStorage>(), authBloc: sl<AuthBloc>()));
   sl.registerFactory(() => CompanyBloc(userStorage: sl<UserLocalStorage>()));
+  sl.registerFactory(
+      () => EmployeeListBloc(userLocalStorage: sl<UserLocalStorage>()));
+  sl.registerFactory(
+      () => EmployeeAddBloc(userLocalStorage: sl<UserLocalStorage>()));
 }

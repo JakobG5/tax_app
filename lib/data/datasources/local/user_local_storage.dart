@@ -58,7 +58,8 @@ class HiveUserStorage implements UserLocalStorage {
   Future<List<Map<String, dynamic>>> getAllUsers() async {
     final usersList =
         _userBox.get(_usersListKey, defaultValue: <Map<String, dynamic>>[]);
-    return List<Map<String, dynamic>>.from(usersList.map((user) => Map<String, dynamic>.from(user)));
+    return List<Map<String, dynamic>>.from(
+        usersList.map((user) => Map<String, dynamic>.from(user)));
   }
 
   @override
@@ -72,7 +73,8 @@ class HiveUserStorage implements UserLocalStorage {
   Future<List<Map<String, dynamic>>> getAllEmployeeData() async {
     final employeeList =
         _userBox.get(_employeeListKey, defaultValue: <Map<String, dynamic>>[]);
-    return List<Map<String, dynamic>>.from(employeeList.map((employee) => Map<String, dynamic>.from(employee)));
+    return List<Map<String, dynamic>>.from(
+        employeeList.map((employee) => Map<String, dynamic>.from(employee)));
   }
 
   @override
@@ -107,34 +109,58 @@ class HiveUserStorage implements UserLocalStorage {
 
   @override
   Future<void> saveCompanyData(Map<String, dynamic> companyData) async {
-    List<Map<String, dynamic>> companies = List<Map<String, dynamic>>.from(
-        _userBox.get(_companyListKey, defaultValue: <Map<String, dynamic>>[]));
-    companies.add(companyData);
-    await _userBox.put(_companyListKey, companies);
+    try {
+      List<Map<String, dynamic>> companies = await getAllCompanyData();
+      companies.add(Map<String, dynamic>.from(companyData));
+      await _userBox.put(_companyListKey, companies);
+    } catch (e) {
+      print('Error saving company data: $e');
+      throw Exception('Failed to save company data: $e');
+    }
   }
 
   @override
   Future<List<Map<String, dynamic>>> getCompanyData(String email) async {
-    final companies =
-        _userBox.get(_companyListKey, defaultValue: <Map<String, dynamic>>[]);
-    return List<Map<String, dynamic>>.from(
-        companies.where((company) => company['email'] == email));
+    try {
+      final companies = await getAllCompanyData();
+      final matchingCompanies = companies.where((company) {
+        final createdBy = company['createdBy']?.toString();
+        return createdBy == email;
+      }).toList();
+
+      print(
+          'Found ${matchingCompanies.length} companies for email: $email'); // Debug log
+      return matchingCompanies;
+    } catch (e) {
+      print('Error getting company data for email $email: $e');
+      return [];
+    }
   }
 
   @override
   Future<List<Map<String, dynamic>>> getAllCompanyData() async {
-    final companies =
-        _userBox.get(_companyListKey, defaultValue: <Map<String, dynamic>>[]);
-    return List<Map<String, dynamic>>.from(
-        companies.map((company) => Map<String, dynamic>.from(company)));
+    try {
+      final rawData = _userBox.get(_companyListKey);
+      if (rawData == null) return [];
+
+      final companies = rawData as List;
+      return companies.map((item) {
+        if (item is Map) {
+          return Map<String, dynamic>.from(item);
+        }
+        throw Exception('Invalid data format in storage');
+      }).toList();
+    } catch (e) {
+      print('Error getting company data: $e');
+      return [];
+    }
   }
 
-  @override
-  Future<void> saveUserProfile(String email, Map<String, dynamic> profileData) async {
+  Future<void> saveUserProfile(
+      String email, Map<String, dynamic> profileData) async {
     await _userBox.put('$email$_userProfileKey', profileData);
   }
 
-  @override
   Future<Map<String, dynamic>?> getUserProfile(String email) async {
     return _userBox.get('$email$_userProfileKey');
   }

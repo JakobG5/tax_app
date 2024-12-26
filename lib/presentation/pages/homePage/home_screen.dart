@@ -54,9 +54,8 @@ class HomeScreen extends StatelessWidget {
                   ),
                   children: [
                     dataCard(DemozColors.primaryBlue, DemozTex.noOfEmp, 0),
-                    dataCard(DemozColors.lightGreen, DemozTex.noOfEmp, 0),
-                    dataCard(DemozColors.primaryBlue, DemozTex.noOfEmp, 0),
-                    dataCard(DemozColors.lightRed, DemozTex.noOfEmp, 0),
+                    dataCard(DemozColors.lightGreen, DemozTex.incomeTax, 0),
+                    dataCard(DemozColors.primaryBlue, DemozTex.pensionTax, 0),
                   ],
                 ),
               ),

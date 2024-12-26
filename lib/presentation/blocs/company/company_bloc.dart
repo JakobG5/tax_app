@@ -48,24 +48,39 @@ class CompanyBloc extends Bloc<CompanyEvent, CompanyState> {
     on<SubmitCompanyData>((event, emit) async {
       emit(CompanySubmitting());
       try {
+        // Explicitly cast the data to Map<String, dynamic>
+        final companyData = Map<String, dynamic>.from(event.companyData);
+        
         // Check if company already exists for the provided email
-        final existingCompanies = await userStorage.getCompanyData(event.companyData['createdBy']);
+        final existingCompanies = await userStorage.getCompanyData(companyData['createdBy']);
         if (existingCompanies.isNotEmpty) {
           emit(CompanyError('Company profile already exists for this email.'));
           return;
         }
 
+        // Ensure all required fields are present and are strings
+        final requiredFields = [
+          'componyName',
+          'addressOfCompony',
+          'phoneNumber',
+          'createdBy',
+        ];
+
+        for (final field in requiredFields) {
+          if (!companyData.containsKey(field) || companyData[field] == null) {
+            emit(CompanyError('Missing required field: $field'));
+            return;
+          }
+          // Ensure the value is a string
+          companyData[field] = companyData[field].toString();
+        }
+
         // Save new company data
-        await userStorage.saveCompanyData(event.companyData);
+        await userStorage.saveCompanyData(companyData);
         emit(CompanySubmitted());
 
-        // Fetch all saved companies and print them
-        final allCompanies = await userStorage.getAllCompanyData();
-        print("All saved companies:");
-        for (var company in allCompanies) {
-          print(company);
-        }
       } catch (e) {
+        print('Error submitting company data: $e');
         emit(CompanyError(e.toString()));
       }
     });
@@ -74,13 +89,28 @@ class CompanyBloc extends Bloc<CompanyEvent, CompanyState> {
     on<FetchCompanyData>((event, emit) async {
       emit(CompanyLoading());
       try {
-        final companyData = await userStorage.getCompanyData(event.email);
+        print('Fetching company data for email: ${event.email}'); // Debug log
+        
+        final companies = await userStorage.getAllCompanyData();
+        print('Retrieved ${companies.length} total companies'); // Debug log
+        
+        final companyData = companies.where((company) {
+          final createdBy = company['createdBy']?.toString();
+          return createdBy == event.email;
+        }).toList();
+        
+        print('Found ${companyData.length} matching companies'); // Debug log
+
         if (companyData.isNotEmpty) {
-          emit(CompanyLoaded(companyData.first));
+          final data = Map<String, dynamic>.from(companyData.first);
+          print('Company data found: $data'); // Debug log
+          emit(CompanyLoaded(data));
         } else {
+          print('No company data found for email: ${event.email}'); // Debug log
           emit(CompanyError('No company data found.'));
         }
       } catch (e) {
+        print('Error fetching company data: $e');
         emit(CompanyError(e.toString()));
       }
     });

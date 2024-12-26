@@ -49,33 +49,52 @@ class _CompanyProfileState extends State<CompanyProfile> {
   }
 
   Future<void> _loadCompanyData() async {
-    final email = await context.read<AuthBloc>().userStorage.getCurrentEmail();
-    print('Current Email: $email'); // Debug
+    try {
+      final email = await context.read<AuthBloc>().userStorage.getCurrentEmail();
+      print('Current Email: $email'); // Debug
 
-    if (email != null) {
-      final companyData = await sl<UserLocalStorage>().getAllCompanyData();
-      print('Fetched Company Data: $companyData'); // Debug
+      if (email != null) {
+        final companyData = await sl<UserLocalStorage>().getAllCompanyData();
+        print('Fetched Company Data: $companyData'); // Debug
 
-      // Find the company data where createdBy matches the email
-      final company = companyData.firstWhere(
-        (company) => company['createdBy'] == email,
-      );
+        // Find the company data where createdBy matches the email
+        final companyMatch = companyData.where(
+          (company) => company['createdBy'] == email,
+        ).toList();
 
-      if (company != null) {
-        setState(() {
-          _nameController.text = company['companyName'] ?? 'No data saved';
-          _emailController.text = company['email'] ?? 'No data saved';
-          _phoneController.text = company['phone'] ?? 'No data saved';
-          _addressController.text = company['address'] ?? 'No data saved';
-          _employeesController.text = company['employees'] ?? 'No data saved';
-          _selectedImagePath = company['image'];
-        });
+        if (companyMatch.isNotEmpty) {
+          final company = companyMatch.first;
+          setState(() {
+            _nameController.text = company['componyName'] ?? 'No data saved';
+            _emailController.text = company['createdBy'] ?? 'No data saved';
+            _phoneController.text = company['phoneNumber'] ?? 'No data saved';
+            _addressController.text = company['addressOfCompony'] ?? 'No data saved';
+            _employeesController.text = company['numberOfEmployees'] ?? 'No data saved';
+            _selectedImagePath = company['image'];
+          });
+        } else {
+          setState(() {
+            _nameController.text = 'No data saved';
+            _emailController.text = 'No data saved';
+            _phoneController.text = 'No data saved';
+            _addressController.text = 'No data saved';
+            _employeesController.text = 'No data saved';
+          });
+          print('No company data found for the current user.');
+        }
       } else {
-        print('No company data found for the current user.');
-        // Optionally, show an empty state or a message that the company profile is not available
+        print('No email found in AuthBloc.');
+        // Show a snackbar or handle the error appropriately
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please log in again')),
+        );
       }
-    } else {
-      print('No email found in AuthBloc.');
+    } catch (e) {
+      print('Error loading company data: $e');
+      // Show error message to user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading company data: $e')),
+      );
     }
   }
 
