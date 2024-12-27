@@ -20,22 +20,33 @@ class GenderGraphWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         color: DemozColors.borderColor,
       ),
-      child: PieChart(
-        PieChartData(
-          sections: [
-            PieChartSectionData(
-              value: maleCount.toDouble(),
-              color: DemozColors.primaryBlue,
-              title: 'M',
+      child: maleCount == 0 && femaleCount == 0
+          ? const Center(
+              child: Text(
+                'No employees',
+                style: TextStyle(
+                  color: DemozColors.grey,
+                  fontSize: 16,
+                ),
+              ),
+            )
+          : PieChart(
+              PieChartData(
+                sections: [
+                  PieChartSectionData(
+                    value: maleCount.toDouble(),
+                    color: DemozColors.primaryBlue,
+                    title: 'M',
+                  ),
+                  PieChartSectionData(
+                    value: femaleCount.toDouble(),
+                    color: DemozColors.lightRed,
+                    title: 'F',
+                  ),
+                ],
+              ),
             ),
-            PieChartSectionData(
-              value: femaleCount.toDouble(),
-              color: DemozColors.lightRed,
-              title: 'F',
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
+

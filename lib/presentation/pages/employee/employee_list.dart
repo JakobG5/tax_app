@@ -4,6 +4,7 @@ import 'package:tax_app/core/constants/color_constant.dart';
 import 'package:tax_app/core/constants/text_constant.dart';
 import 'package:tax_app/core/di/injection_container.dart';
 import 'package:tax_app/core/themes/text_theme.dart';
+import 'package:tax_app/presentation/blocs/addEmployeeBloc.dart';
 import 'package:tax_app/presentation/pages/employee/add_employee.dart';
 import 'package:tax_app/presentation/blocs/employee_list_bloc.dart';
 
@@ -113,7 +114,10 @@ Widget addEmployee(BuildContext context) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const EmployeeAdd(),
+          builder: (context) => BlocProvider<EmployeeAddBloc>(
+            create: (_) => sl<EmployeeAddBloc>(),
+            child: const EmployeeAdd(),
+          ),
         ),
       );
     },

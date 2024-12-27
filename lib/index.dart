@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
+import 'package:tax_app/data/datasources/local/user_local_storage.dart';
 import 'package:tax_app/presentation/blocs/auth/auth_bloc.dart';
 import 'package:tax_app/presentation/blocs/employee_list_bloc.dart';
 import 'package:tax_app/presentation/blocs/addEmployeeBloc.dart';
@@ -12,8 +14,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
+    return MultiProvider(
       providers: [
+        Provider<UserLocalStorage>(
+          create: (context) => sl<UserLocalStorage>(),
+        ),
         BlocProvider<AuthBloc>(
           create: (context) => sl<AuthBloc>()..add(CheckAuthStatus()),
         ),

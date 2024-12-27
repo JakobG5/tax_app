@@ -4,7 +4,6 @@ import 'package:tax_app/core/constants/color_constant.dart';
 import 'package:tax_app/core/constants/text_constant.dart';
 import 'package:tax_app/core/themes/text_theme.dart';
 import 'package:tax_app/core/utils/helper.dart';
-import 'package:tax_app/data/datasources/local/user_local_storage.dart';
 import 'package:tax_app/presentation/blocs/addEmployeeBloc.dart';
 import 'package:tax_app/presentation/widgets/common/btrn.dart';
 import 'package:tax_app/presentation/widgets/common/text_field.dart';
@@ -46,8 +45,8 @@ class _EmployeeAddState extends State<EmployeeAdd> {
   void _saveEmployee() async {
     if (_formKey.currentState?.validate() ?? false) {
       try {
-        final currentEmail =
-            await context.read<UserLocalStorage>().getCurrentEmail();
+        final bloc = context.read<EmployeeAddBloc>();
+        final currentEmail = await bloc.userLocalStorage.getCurrentEmail();
         if (currentEmail == null) {
           throw 'User not logged in';
         }
@@ -86,7 +85,7 @@ class _EmployeeAddState extends State<EmployeeAdd> {
         };
 
         print('Employee data prepared: $employeeData'); // Debug print
-        context.read<EmployeeAddBloc>().addEmployee(employeeData);
+        bloc.add(AddEmployee(employeeData));
       } catch (e) {
         print('Error in form submission: $e'); // Debug print
         ScaffoldMessenger.of(context).showSnackBar(
