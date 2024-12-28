@@ -148,150 +148,158 @@ class _EmployeeAddState extends State<EmployeeAdd> {
                 height: double.infinity,
                 width: double.infinity,
                 child: SafeArea(
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
+                    children: [
+                      const Text(DemozTex.addNEmployee, style: DemozTH.header4),
+                      const Text(DemozTex.addET, style: DemozTH.body2Regular),
+                      const SizedBox(height: 21),
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
+                            const SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Icon(
+                                    Icons.navigate_before_sharp,
+                                    size: 30,
+                                  ),
+                                ),
+                                Text(
+                                  DemozTex.addEmp,
+                                  style: DemozTH.pop.copyWith(fontSize: 22),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            // Employee Name
+                            CustomTextField(
+                              controller: _employeeNameController,
+                              hint: DemozTex.emName,
+                              validator: Validation.validateName,
+                            ),
+                            const SizedBox(height: 18),
+                            // Email
+                            CustomTextField(
+                              controller: _emailController,
+                              hint: DemozTex.emailA,
+                              validator: Validation.validateEmail,
+                              inputType: TextInputType.emailAddress,
+                            ),
+                            const SizedBox(height: 18),
+                            // Phone Number
+                            CustomTextField(
+                              controller: _phoneController,
+                              hint: DemozTex.phoneNumber,
+                              validator: Validation.validatePhone,
+                              inputType: TextInputType.phone,
+                            ),
+                            const SizedBox(height: 18),
+                            // TIN Number
+                            CustomTextField(
+                              controller: _tinNumberController,
+                              hint: 'TIN Number',
+                              validator: (value) => Validation.validateRequired(
+                                  value, 'TIN Number'),
+                              inputType: TextInputType.number,
+                            ),
+                            const SizedBox(height: 18),
+                            // Gross Salary
+                            CustomTextField(
+                              controller: _grossSalaryController,
+                              hint: 'Gross Salary',
+                              inputType: TextInputType.number,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Gross salary is required';
+                                }
+                                if (double.tryParse(value) == null) {
+                                  return 'Please enter a valid number';
+                                }
+                                if (double.parse(value) <= 0) {
+                                  return 'Gross salary must be greater than 0';
+                                }
+                                return null;
                               },
-                              child: const Icon(
-                                Icons.navigate_before_sharp,
-                                size: 30,
+                            ),
+                            const SizedBox(height: 18),
+                            // Taxable Earning
+                            CustomTextField(
+                              controller: _taxableEarningController,
+                              hint: 'Taxable Earning',
+                              inputType: TextInputType.number,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Taxable earning is required';
+                                }
+                                if (double.tryParse(value) == null) {
+                                  return 'Please enter a valid number';
+                                }
+                                final taxableEarning = double.parse(value);
+                                final grossSalary = double.tryParse(
+                                        _grossSalaryController.text) ??
+                                    0;
+                                if (taxableEarning > grossSalary) {
+                                  return 'Taxable earning cannot be greater than gross salary';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 20),
+                            // Starting Date of Salary
+                            GestureDetector(
+                              onTap: () => _selectStartingDate(context),
+                              child: AbsorbPointer(
+                                child: CustomTextField(
+                                  controller: _startingDateOfSalaryController,
+                                  hint: 'Starting Date of Salary',
+                                  validator: (value) =>
+                                      Validation.validateRequired(
+                                          value, 'Starting date'),
+                                ),
                               ),
                             ),
-                            Text(
-                              DemozTex.addEmp,
-                              style: DemozTH.pop.copyWith(fontSize: 22),
+                            const SizedBox(height: 18),
+                            DropdownButtonFormField<String>(
+                              value: selectedGender,
+                              decoration: const InputDecoration(
+                                labelText: 'Gender',
+                                border: OutlineInputBorder(),
+                              ),
+                              items: genderOptions.map((String gender) {
+                                return DropdownMenuItem(
+                                  value: gender,
+                                  child: Text(gender),
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  selectedGender = newValue!;
+                                });
+                              },
+                              validator: (value) =>
+                                  value == null ? 'Please select gender' : null,
                             ),
+                            const SizedBox(height: 18),
+                            SizedBox(
+                              width: double.infinity,
+                              child: button(
+                                DemozTex.addEmp,
+                                _saveEmployee,
+                                false,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
                           ],
                         ),
-                        const SizedBox(height: 20),
-                        // Employee Name
-                        CustomTextField(
-                          controller: _employeeNameController,
-                          hint: DemozTex.emName,
-                          validator: Validation.validateName,
-                        ),
-                        const SizedBox(height: 18),
-                        // Email
-                        CustomTextField(
-                          controller: _emailController,
-                          hint: DemozTex.emailA,
-                          validator: Validation.validateEmail,
-                          inputType: TextInputType.emailAddress,
-                        ),
-                        const SizedBox(height: 18),
-                        // Phone Number
-                        CustomTextField(
-                          controller: _phoneController,
-                          hint: DemozTex.phoneNumber,
-                          validator: Validation.validatePhone,
-                          inputType: TextInputType.phone,
-                        ),
-                        const SizedBox(height: 18),
-                        // TIN Number
-                        CustomTextField(
-                          controller: _tinNumberController,
-                          hint: 'TIN Number',
-                          validator: (value) =>
-                              Validation.validateRequired(value, 'TIN Number'),
-                          inputType: TextInputType.number,
-                        ),
-                        const SizedBox(height: 18),
-                        // Gross Salary
-                        CustomTextField(
-                          controller: _grossSalaryController,
-                          hint: 'Gross Salary',
-                          inputType: TextInputType.number,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Gross salary is required';
-                            }
-                            if (double.tryParse(value) == null) {
-                              return 'Please enter a valid number';
-                            }
-                            if (double.parse(value) <= 0) {
-                              return 'Gross salary must be greater than 0';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 18),
-                        // Taxable Earning
-                        CustomTextField(
-                          controller: _taxableEarningController,
-                          hint: 'Taxable Earning',
-                          inputType: TextInputType.number,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Taxable earning is required';
-                            }
-                            if (double.tryParse(value) == null) {
-                              return 'Please enter a valid number';
-                            }
-                            final taxableEarning = double.parse(value);
-                            final grossSalary =
-                                double.tryParse(_grossSalaryController.text) ??
-                                    0;
-                            if (taxableEarning > grossSalary) {
-                              return 'Taxable earning cannot be greater than gross salary';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        // Starting Date of Salary
-                        GestureDetector(
-                          onTap: () => _selectStartingDate(context),
-                          child: AbsorbPointer(
-                            child: CustomTextField(
-                              controller: _startingDateOfSalaryController,
-                              hint: 'Starting Date of Salary',
-                              validator: (value) => Validation.validateRequired(
-                                  value, 'Starting date'),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-                        DropdownButtonFormField<String>(
-                          value: selectedGender,
-                          decoration: const InputDecoration(
-                            labelText: 'Gender',
-                            border: OutlineInputBorder(),
-                          ),
-                          items: genderOptions.map((String gender) {
-                            return DropdownMenuItem(
-                              value: gender,
-                              child: Text(gender),
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedGender = newValue!;
-                            });
-                          },
-                          validator: (value) =>
-                              value == null ? 'Please select gender' : null,
-                        ),
-                        const SizedBox(height: 18),
-                        SizedBox(
-                          width: double.infinity,
-                          child: button(
-                            DemozTex.addEmp,
-                            _saveEmployee,
-                            false,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
